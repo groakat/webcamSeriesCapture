@@ -1,0 +1,81 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# vim swap files
+*.swp
+ 
+# trac
+trac/*
+
+# test files
+sandbox/*
+
+# python environment files
+startEnv
+pyToolsEnv/*
+pyToolsEnvCopy/*
+
+# bin files
+libs/*
+
+
+# IPython notebooks
+*.ipynb
+
+# sphinx documentation system
+doc/sphinx/build/*
+*.pdf
+
+# media files
+*.png
+*.ogv
+*.mp4
+
+# archives
+*.tgz
+*.json
+
+# metadata
+.metadata
+
+# userdata
+*.awr
+*.req
+*.npy
+*.cfg
+
+# eclipse stuff
+.project
+.pydevproject
+.settings
+.directory
+.idea
