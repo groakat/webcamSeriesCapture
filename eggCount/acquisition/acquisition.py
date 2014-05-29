@@ -72,7 +72,6 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.le_folder.returnPressed.connect(self.ui.pb_setFolder.clicked)
         self.ui.le_prefix.returnPressed.connect(self.ui.pb_setPrefix.clicked)
 
-        # self.aboutToQuit.connect(self.cleanUp)
 
 
     def registerEvents(self):
@@ -94,6 +93,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.lbl_preview.setScaledContents(True)
         self.ui.lbl_preview.repaint()
 
+        return img
+
     def saveImage(self):
         if self.isYeast:
             self.saveYeastImage()
@@ -102,7 +103,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
     def saveDefinedMediaImage(self):
         self.setLight()
-        img = np.rot90(self.cam.getImage().getNumpy(), 3)
+        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
         filename = self.path.format(cnt=self.imgCounter, suf="")
         self.imgCounter += 1
         spMisc.imsave(filename, img)
@@ -110,14 +111,14 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
 
     def saveYeastImage(self):
-        img = np.rot90(self.cam.getImage().getNumpy(), 3)
+        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
         filename = self.path.format(cnt=self.imgCounter, suf="_a")
         # self.imgCounter += 1
         spMisc.imsave(filename, img)
         self.statusBar().showMessage("saving to {0}".format(filename))
 
         self.setLight()
-        img = np.rot90(self.cam.getImage().getNumpy(), 3)
+        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
         filename = self.path.format(cnt=self.imgCounter, suf="_b")
         self.imgCounter += 1
         spMisc.imsave(filename, img)
