@@ -1,5 +1,5 @@
 
-import eggCount.gui.mainwindow_auto as MW
+import  webcamSeriesCapture.gui.mainwindow_auto as MW
 
 import sys
 from PySide import QtGui
