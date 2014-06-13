@@ -1,4 +1,4 @@
-
+import webcamSeriesCapture.gui.mainwindow_auto as MW
 import webcamSeriesCapture.gui.mainwindow_auto as MW
 
 import sys
