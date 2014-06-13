@@ -1,5 +1,5 @@
 
-import eggCount.gui.mainwindow_auto as MW
+import webcamSeriesCapture.gui.mainwindow_auto as MW
 
 import sys
 from PySide import QtGui
@@ -37,6 +37,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
         self.cam = SimpleCV.Camera(1, prop_set={"width":500,"height":600}, )
         self.timer = None
+        self.ledCode = "1 0 0"
 
         now = dt.datetime.now()
         dateToday = "{y}{m:02d}{d:02d}".format(y=now.year, m=now.month, d=now.day)
@@ -68,9 +69,16 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.pb_setPrefix.clicked.connect(self.setPrefix)
         self.ui.pb_setFolder.clicked.connect(self.setFolder)
         self.ui.pb_selectFolder.clicked.connect(self.selectFolder)
-        self.ui.cb_yeast.stateChanged.connect(self.selectYeast)
+        self.ui.rb_yeast.toggled.connect(self.selectYeast)
+        self.ui.rb_definedMedia.toggled.connect(self.selectDefinedMedia)
+        self.ui.rb_noLight.toggled.connect(self.selectNoLight)
+        self.ui.rb_allLight.toggled.connect(self.selectAllLight)
         self.ui.le_folder.returnPressed.connect(self.ui.pb_setFolder.clicked)
         self.ui.le_prefix.returnPressed.connect(self.ui.pb_setPrefix.clicked)
+        incImgCounter = lambda: self.setImgCounter(self.imgCounter + 1)
+        self.ui.pb_idxInc.clicked.connect(incImgCounter)
+        decImgCounter = lambda: self.setImgCounter(self.imgCounter - 1)
+        self.ui.pb_idxDec.clicked.connect(decImgCounter)
 
 
 
@@ -96,18 +104,26 @@ class EggCountAcquisition(QtGui.QMainWindow):
         return img
 
     def saveImage(self):
+        if not os.path.exists(self.path):
+            os.makedirs(os.path.split(self.path)[0])
+
         if self.isYeast:
             self.saveYeastImage()
         else:
             self.saveDefinedMediaImage()
 
+    def setImgCounter(self, cnt):
+        self.imgCounter = cnt
+        self.ui.le_idx.setText("{0}".format(cnt))
+        filename = self.path.format(cnt=self.imgCounter, suf="_b")
+        self.statusBar().showMessage("saving next image to {0}".format(filename))
+
     def saveDefinedMediaImage(self):
         self.setLight()
         img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
         filename = self.path.format(cnt=self.imgCounter, suf="")
-        self.imgCounter += 1
+        self.setImgCounter(self.imgCounter + 1)
         spMisc.imsave(filename, img)
-        self.statusBar().showMessage("saving to {0}".format(filename))
 
 
     def saveYeastImage(self):
@@ -115,14 +131,12 @@ class EggCountAcquisition(QtGui.QMainWindow):
         filename = self.path.format(cnt=self.imgCounter, suf="_a")
         # self.imgCounter += 1
         spMisc.imsave(filename, img)
-        self.statusBar().showMessage("saving to {0}".format(filename))
 
         self.setLight()
         img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
         filename = self.path.format(cnt=self.imgCounter, suf="_b")
-        self.imgCounter += 1
+        self.setImgCounter(self.imgCounter + 1)
         spMisc.imsave(filename, img)
-        self.statusBar().showMessage("saving to {0}".format(filename))
 
         self.setLight()
 
@@ -133,19 +147,21 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.pb_acquire.setFocus()
 
     def setFolder(self):
+        self.prefix = self.ui.le_prefix.text()
         self.folder = self.ui.le_folder.text()
         self.setPath()
 
     def setPrefix(self):
         self.prefix = self.ui.le_prefix.text()
+        self.folder = self.ui.le_folder.text()
         self.setPath()
 
     def setPath(self):
         self.path = os.path.join(self.folder, self.prefix)
         if not os.path.exists(self.path):
-            os.makedirs(self.path)
-
-        self.retrieveCounterFromFolder()
+            self.setImgCounter(1)
+        else:
+            self.retrieveCounterFromFolder()
 
         self.statusBar().showMessage("Set folder path to {0}. Start counter with {1}".format(self.path, self.imgCounter))
 
@@ -154,12 +170,43 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
 
     def selectYeast(self, isYeast):
-        self.isYeast = isYeast
-        if self.isYeast:
-            self.lightLeft = True
-            self.statusBar().showMessage("Yeast Mode: ON")
-        else:
-            self.statusBar().showMessage("Yeast Mode: OFF")
+        if not isYeast:
+            return
+
+        self.isYeast = True
+        self.lightLeft = True
+        self.statusBar().showMessage("Yeast Mode: ON")
+
+        self.setLight()
+
+    def selectDefinedMedia(self, isDefinedMedia):
+        if not isDefinedMedia:
+            return
+
+        self.isYeast = False
+        self.ledCode = "1 0 0"
+        self.statusBar().showMessage("Defined Media Mode: OFF")
+
+        self.setLight()
+
+    def selectNoLight(self, isNoLight):
+        if not isNoLight:
+            return
+
+        self.isYeast = False
+        self.ledCode = "0 0 0"
+        self.statusBar().showMessage("Defined Media Mode: OFF")
+
+        self.setLight()
+
+
+    def selectAllLight(self, isAllLight):
+        if not isAllLight:
+            return
+
+        self.isYeast = False
+        self.ledCode = "1 1 1"
+        self.statusBar().showMessage("Defined Media Mode: OFF")
 
         self.setLight()
 
@@ -176,7 +223,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
                 cnt = int(idx)
                 if cnt > self.imgCounter:
-                    self.imgCounter = cnt + 1
+                    self.setImgCounter(cnt + 1)
 
 
     def connectToArduino(self):
@@ -195,7 +242,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
     def setLight(self):
         if not self.isYeast:
-            self.ser.write("Led 1 0 0\n")
+            self.ser.write("Led {0}\n".format(self.ledCode))
             print self.ser.readlines()
 
         else:
