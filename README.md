@@ -4,6 +4,7 @@ This provides a simple graphical user interface to use `SimpleCV` to capture ima
 Further this script uses a serial connection to control the `quanti-fly`/ `egg-counter`. More information here
 
 https://github.com/dwaithe/quantifly
+
 http://eggcounter.polygonaltree.co.uk/
 
 
