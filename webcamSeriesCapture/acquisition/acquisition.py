@@ -241,7 +241,13 @@ class EggCountAcquisition(QtGui.QMainWindow):
                 except OSError:
                     continue
         else:
-            raise OSError("OS not supported yet")
+            import serial.tools.list_ports
+            ports = list(serial.tools.list_ports.comports())
+            for port_name, device, bus in ports:
+                try:
+                    self.ser = serial.Serial(port_name, timeout=1)
+                except OSError:
+                    continue
 
         if self.ser.readlines() != ['\r\n', '*EMRDY: 1\r\n']:
             # print("Connected to Arduino at port /dev/ttyACM{0}".format(i))
