@@ -4,7 +4,7 @@ import webcamSeriesCapture.gui.mainwindow_auto as MW
 import sys
 from PySide import QtGui
 from PySide import QtCore
-import SimpleCV
+import cv2
 import qimage2ndarray as qim2np
 import numpy as np
 from scipy import misc as spMisc
@@ -12,7 +12,7 @@ import os
 import serial
 import datetime as dt
 import time
-
+import sys
 
 
 class EggCountAcquisition(QtGui.QMainWindow):
@@ -35,7 +35,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.setupUi(self)
 
 
-        self.cam = SimpleCV.Camera(1, prop_set={"width":500,"height":600}, )
+        self.cam = cv2.VideoCapture(1)
         self.timer = None
         self.ledCode = "1 0 0"
 
@@ -90,8 +90,9 @@ class EggCountAcquisition(QtGui.QMainWindow):
     def grabImage(self):
         xSlice = slice(900, 1400)
         ySlice = slice(550, 1050)
-
-        img = np.rot90(self.cam.getImage().getNumpy(), 3)
+        
+        ret, img = self.cam.read()
+        img = np.rot90(img, 3)
 
         qi = qim2np.array2qimage(img)#[ySlice, xSlice])
         pixmap = QtGui.QPixmap()
@@ -104,7 +105,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         return img
 
     def saveImage(self):
-        if not os.path.exists(self.path):
+        if not os.path.exists(os.path.split(self.path)[0]):
             os.makedirs(os.path.split(self.path)[0])
 
         if self.isYeast:
@@ -227,18 +228,26 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
 
     def connectToArduino(self):
-        for i in range(0, 10):
-            try:
-                self.ser = serial.Serial('/dev/ttyACM{0}'.format(i), timeout=1)
-            except OSError:
-                continue
+        if sys.platform == 'linux' or sys.platform == 'linux2':
+            for i in range(0, 10):
+                try:
+                    self.ser = serial.Serial('/dev/ttyACM{0}'.format(i), timeout=1)
+                except OSError:
+                    continue
+        elif sys.platform == 'darwin':
+            for port in [x for x in os.listdir('/dev/') if 'usbmodem' in x]:
+                try:
+                    self.ser = serial.Serial('/dev/' + port, timeout=1)
+                except OSError:
+                    continue
+        else:
+            raise OSError("OS not supported yet")
 
-            if self.ser.readlines() != ['\r\n', '*EMRDY: 1\r\n']:
-                print("Connected to Arduino at port /dev/ttyACM{0}".format(i))
-                self.statusBar().showMessage("Connected to Arduino at port /dev/ttyACM{0}".format(i))
-                self.setLight()
-                self.setLight()
-                break
+        if self.ser.readlines() != ['\r\n', '*EMRDY: 1\r\n']:
+            # print("Connected to Arduino at port /dev/ttyACM{0}".format(i))
+            self.statusBar().showMessage("Connected to Arduino") 
+            self.setLight()
+            self.setLight()
 
     def setLight(self):
         if not self.isYeast:
