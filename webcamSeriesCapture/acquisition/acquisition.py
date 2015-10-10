@@ -35,7 +35,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.setupUi(self)
 
 
-        self.cam = cv2.VideoCapture(1)
+        self.cam = cv2.VideoCapture(0)
         self.timer = None
         self.ledCode = "1 0 0"
 
@@ -134,6 +134,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         spMisc.imsave(filename, img)
 
         self.setLight()
+        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
         img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
         filename = self.path.format(cnt=self.imgCounter, suf="_b")
         self.setImgCounter(self.imgCounter + 1)
@@ -246,7 +247,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
             for port_name, device, bus in ports:
                 try:
                     self.ser = serial.Serial(port_name, timeout=1)
-                except OSError:
+                except serial.serialutil.SerialException:
                     continue
 
         if self.ser.readlines() != ['\r\n', '*EMRDY: 1\r\n']:
