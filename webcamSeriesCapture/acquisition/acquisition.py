@@ -145,9 +145,9 @@ class EggCountAcquisition(QtGui.QMainWindow):
         
         return skic.lab2rgb(res_img)
 
-    def blackout_outside(self, img):    
+    def blackout_outside(self, img, sigma=4):    
         img_g = skic.rgb2gray(img)
-        edges = skif.canny(img_g, sigma=4)
+        edges = skif.canny(img_g, sigma=sigma)
         
         hough_radii = np.arange(190, 210, 2)
         hough_res = skit.hough_circle(edges, hough_radii)
@@ -167,11 +167,11 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
 #                print radius, np.max(h.ravel()), len(peaks)
 
-        if accums == []:
-            return img
+        if accums == [] and sigma==3:
+            return self.blackout_outside(img, sigma=3)
             
     #     Draw the most prominent 5 circles
-        image = np.zeros_like(img)
+        image = (img.copy() / 4.0).astype(np.uint8)
         for idx in np.argsort(accums)[::-1][:3]:
             center_x, center_y = centers[idx]
             radius = radii[idx]
