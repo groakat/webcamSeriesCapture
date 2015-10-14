@@ -18,6 +18,7 @@ import skimage.color as skic
 import skimage.transform as skit
 import skimage.feature as skif
 import skimage.draw as skid
+import skimage.filters as skifilt
 
 
 class EggCountAcquisition(QtGui.QMainWindow):
@@ -132,7 +133,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.le_idx.setText("{0}".format(cnt))
         filename = self.path.format(cnt=self.imgCounter, suf="_b")
         self.statusBar().showMessage("saving next image to {0}".format(filename))
-        self.setLight()
+        #self.setLight()
 
     def merge_images(self, img_a, img_b):
         i_a = skic.rgb2lab(img_a)
@@ -180,11 +181,11 @@ class EggCountAcquisition(QtGui.QMainWindow):
         
         return center_x, center_y, int(radius)
 
-    def blackout_outside(self, img, sigma=4):    
+    def blackout_outside(self, img, sigma=3):    
         img_g = skic.rgb2gray(img)
         edges = skif.canny(img_g, sigma=sigma)
         
-        hough_radii = np.arange(190, 210, 2)
+        hough_radii = np.arange(180, 210, 2)
         hough_res = skit.hough_circle(edges, hough_radii)
         
         centers = []
