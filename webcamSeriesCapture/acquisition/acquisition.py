@@ -63,7 +63,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
         self.connectToArduino()
 
-        self.selectAllLight()
+        self.selectAllLight(True)
         self.ui.rb_allLight.setChecked(True)
        
 
@@ -119,9 +119,10 @@ class EggCountAcquisition(QtGui.QMainWindow):
         if not os.path.exists(os.path.split(self.path)[0]):
             os.makedirs(os.path.split(self.path)[0])
 
+        if not os.path.exists(os.path.split(self.path_raw)[0]):
+            os.makedirs(os.path.split(self.path_raw)[0])
+                
         if self.isYeast:            
-            if not os.path.exists(os.path.split(self.path_raw)[0]):
-                os.makedirs(os.path.split(self.path_raw)[0])
             self.saveYeastImage()
         else:
             self.saveDefinedMediaImage()
@@ -144,7 +145,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         
         return skic.lab2rgb(res_img)
 
-    def blackout_outside(img):    
+    def blackout_outside(self, img):    
         img_g = skic.rgb2gray(img)
         edges = skif.canny(img_g, sigma=4)
         
@@ -159,12 +160,16 @@ class EggCountAcquisition(QtGui.QMainWindow):
             # For each radius, extract two circles
             num_peaks = 1
             peaks = skif.peak_local_max(h, min_distance=40, num_peaks=num_peaks)
-            centers.extend(peaks)
-            accums.extend(h[peaks[:, 0], peaks[:, 1]])
-            radii.extend([radius] * num_peaks)
+            if peaks != []:
+                centers.extend(peaks)
+                accums.extend(h[peaks[:, 0], peaks[:, 1]])
+                radii.extend([radius] * num_peaks)
 
-            print radius, np.max(h.ravel()), len(peaks)
+#                print radius, np.max(h.ravel()), len(peaks)
 
+        if accums == []:
+            return img
+            
     #     Draw the most prominent 5 circles
         image = np.zeros_like(img)
         for idx in np.argsort(accums)[::-1][:3]:
@@ -189,7 +194,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         spMisc.imsave(filename, img)
 
         filename = self.path.format(cnt=self.imgCounter, suf="")
-        img = blackout_outside(img)
+        img = self.blackout_outside(img)
         spMisc.imsave(filename, img)        
 
         self.setImgCounter(self.imgCounter + 1)
