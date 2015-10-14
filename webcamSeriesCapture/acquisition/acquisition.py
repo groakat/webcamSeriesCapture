@@ -15,6 +15,9 @@ import time
 import sys
 import skimage.io as skio
 import skimage.color as skic
+import skimage.transform as skit
+import skimage.feature as skif
+import skimage.draw as skid
 
 
 class EggCountAcquisition(QtGui.QMainWindow):
@@ -125,13 +128,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.le_idx.setText("{0}".format(cnt))
         filename = self.path.format(cnt=self.imgCounter, suf="_b")
         self.statusBar().showMessage("saving next image to {0}".format(filename))
-
-    def saveDefinedMediaImage(self):
         self.setLight()
-        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
-        filename = self.path.format(cnt=self.imgCounter, suf="")
-        self.setImgCounter(self.imgCounter + 1)
-        spMisc.imsave(filename, img)
 
     def merge_images(self, img_a, img_b):
         i_a = skic.rgb2lab(img_a)
@@ -144,6 +141,58 @@ class EggCountAcquisition(QtGui.QMainWindow):
         
         return skic.lab2rgb(res_img)
 
+    def blackout_outside(img):    
+        img_g = skic.rgb2gray(img)
+        edges = skif.canny(img_g, sigma=4)
+        
+        hough_radii = np.arange(190, 210, 2)
+        hough_res = skit.hough_circle(edges, hough_radii)
+        
+        centers = []
+        accums = []
+        radii = []
+
+        for radius, h in zip(hough_radii, hough_res):
+            # For each radius, extract two circles
+            num_peaks = 1
+            peaks = skif.peak_local_max(h, min_distance=40, num_peaks=num_peaks)
+            centers.extend(peaks)
+            accums.extend(h[peaks[:, 0], peaks[:, 1]])
+            radii.extend([radius] * num_peaks)
+
+            print radius, np.max(h.ravel()), len(peaks)
+
+    #     Draw the most prominent 5 circles
+        image = np.zeros_like(img)
+        for idx in np.argsort(accums)[::-1][:3]:
+            center_x, center_y = centers[idx]
+            radius = radii[idx]
+            cx, cy = skid.circle(center_y, center_x, radius)
+            image[cy, cx] = img[cy, cx]
+        
+        return image
+
+
+
+    def saveDefinedMediaImage(self):
+        self.setLight()
+        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
+
+        ledCode = self.ledCode
+        self.ledCode = "0 0 0"
+        self.setLight()
+
+        filename = self.path_raw.format(cnt=self.imgCounter, suf="")
+        spMisc.imsave(filename, img)
+
+        filename = self.path.format(cnt=self.imgCounter, suf="")
+        img = blackout_outside(img)
+        spMisc.imsave(filename, img)        
+
+        self.setImgCounter(self.imgCounter + 1)
+
+        self.ledCode = ledCode
+        self.setLight()
 
     def saveYeastImage(self):
         self.setLight()
