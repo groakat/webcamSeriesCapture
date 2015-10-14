@@ -144,6 +144,41 @@ class EggCountAcquisition(QtGui.QMainWindow):
         res_img[..., 0] = norm_lum
         
         return skic.lab2rgb(res_img)
+        
+    def average_hough_detections(self, hough_radii, hough_res, num_best=5):   
+        """
+        Smooths `num_best` hough detections with Gaussian and 
+        computes weighted average across the `num_best` hough
+        detections to get more precise center_x, center_y and 
+        radius of circle
+        """
+        
+        centers = []
+        accums = []
+        radii = []
+        
+        for radius, h in zip(hough_radii, hough_res):
+            # For each radius, extract two circles
+            h_smooth = skifilt.gaussian_filter(h, sigma=4)
+            num_peaks = 1
+            peaks = skif.peak_local_max(h, min_distance=40, num_peaks=num_peaks)
+            centers.extend(peaks)
+            accums.extend(h[peaks[:, 0], peaks[:, 1]])
+            radii.extend([radius] * num_peaks)        
+            
+        h_sum = np.sum([skifilt.gaussian_filter(x, sigma=2) 
+                        for x in hough_res[np.argsort(accums)[::-1][:num_best]]], axis=0)
+    
+        peaks = skif.peak_local_max(h_sum, min_distance=40, num_peaks=num_peaks)
+    
+        center_x, center_y = peaks[0]
+    
+        max_sel = [np.max(x.ravel()) for x in hough_res[np.argsort(accums)[::-1][:num_best]]]
+        radii_sel = [radii[i] for i in np.argsort(accums)[::-1][:num_best]]    
+    
+        radius = sum([m * r for m, r in zip(max_sel, radii_sel)]) / float(sum(max_sel)) 
+        
+        return center_x, center_y, int(radius)
 
     def blackout_outside(self, img, sigma=4):    
         img_g = skic.rgb2gray(img)
@@ -172,11 +207,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
             
     #     Draw the most prominent 5 circles
         image = (img.copy() / 4.0).astype(np.uint8)
-        for idx in np.argsort(accums)[::-1][:3]:
-            center_x, center_y = centers[idx]
-            radius = radii[idx]
-            cx, cy = skid.circle(center_y, center_x, radius)
-            image[cy, cx] = img[cy, cx]
+        cx, cy = skid.circle(*self.average_hough_detections(hough_radii, hough_res))
+        image[cy, cx] = img[cy, cx]
         
         return image
 
