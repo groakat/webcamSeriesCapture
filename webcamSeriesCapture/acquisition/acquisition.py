@@ -38,6 +38,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
 
         self.cam = cv2.VideoCapture(0)
+        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         self.timer = None
         self.ledCode = "1 0 0"
 
@@ -55,11 +57,12 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
         self.initGUI()
         self.connectSignals()
-        self.registerEvents()
 
         self.connectToArduino()
+       
 
         self.show()
+        self.registerEvents()
 
 
     def initGUI(self):
@@ -93,8 +96,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
         xSlice = slice(660, 1250)
         ySlice = slice(225, 825)
         
-        ret, img = self.cam.read()
-        img = np.rot90(img[ySlice, xSlice], 3)
+        ret, img_org = self.cam.read()
+        img = np.rot90(img_org[ySlice, xSlice], 3)
 
         qi = qim2np.array2qimage(img)#[ySlice, xSlice])
         pixmap = QtGui.QPixmap()
@@ -134,7 +137,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         i_a = skic.rgb2lab(img_a)
         i_b = skic.rgb2lab(img_b)
         
-        norm_lum = np.min(np.asarray([i_a[..., 0], i_b[..., 0]]), axis=0)
+        norm_lum = np.max(np.asarray([i_a[..., 0], i_b[..., 0]]), axis=0)
         
         res_img = i_a.copy()
         res_img[..., 0] = norm_lum
@@ -143,6 +146,9 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
 
     def saveYeastImage(self):
+        self.setLight()
+        img_a = self.grabImage()
+        # grab a second time to make sure openCV flushed the camera buffer
         img_a = self.grabImage()
         filename = self.path_raw.format(cnt=self.imgCounter, suf="_a")
         skio.imsave(filename, img_a)
@@ -158,7 +164,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
         filename = self.path.format(cnt=self.imgCounter, suf="")
         skio.imsave(filename, merged_img)
 
-        self.setLight()
+        self.ser.write("Led 1 1 1\n")
+        print self.ser.readlines()
         self.setImgCounter(self.imgCounter + 1)
 
     def selectFolder(self):
@@ -296,9 +303,17 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
     @QtCore.Slot()
     def cleanUp(self):
-        self.ser.write("Led 0 0 0\n")
-        self.ser.close()
-        del self.cam
+        self.timer.stop()
+        try:
+            self.ser.write("Led 0 0 0\n")
+            self.ser.close()
+        except:
+            print("Port already closed")
+            
+        try:
+            del self.cam
+        except AttributeError:
+            print("Cam already closed")
 
 
 
