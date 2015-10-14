@@ -52,16 +52,19 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.prefix = "M"
         self.path = ""
         self.imgCounter = 0
-        self.setPath()
 
         self.ser = None
         self.isYeast = False
         self.lightLeft = True
 
+        self.setPath()
         self.initGUI()
         self.connectSignals()
 
         self.connectToArduino()
+
+        self.selectAllLight()
+        self.ui.rb_allLight.setChecked(True)
        
 
         self.show()
