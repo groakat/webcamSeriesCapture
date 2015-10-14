@@ -13,6 +13,8 @@ import serial
 import datetime as dt
 import time
 import sys
+import skimage.io as skio
+import skimage.color as skic
 
 
 class EggCountAcquisition(QtGui.QMainWindow):
@@ -88,11 +90,11 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.timer.start(33)
 
     def grabImage(self):
-        xSlice = slice(900, 1400)
-        ySlice = slice(550, 1050)
+        xSlice = slice(660, 1250)
+        ySlice = slice(225, 825)
         
         ret, img = self.cam.read()
-        img = np.rot90(img, 3)
+        img = np.rot90(img[ySlice, xSlice], 3)
 
         qi = qim2np.array2qimage(img)#[ySlice, xSlice])
         pixmap = QtGui.QPixmap()
@@ -108,7 +110,9 @@ class EggCountAcquisition(QtGui.QMainWindow):
         if not os.path.exists(os.path.split(self.path)[0]):
             os.makedirs(os.path.split(self.path)[0])
 
-        if self.isYeast:
+        if self.isYeast:            
+            if not os.path.exists(os.path.split(self.path_raw)[0]):
+                os.makedirs(os.path.split(self.path_raw)[0])
             self.saveYeastImage()
         else:
             self.saveDefinedMediaImage()
@@ -126,21 +130,36 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.setImgCounter(self.imgCounter + 1)
         spMisc.imsave(filename, img)
 
+    def merge_images(self, img_a, img_b):
+        i_a = skic.rgb2lab(img_a)
+        i_b = skic.rgb2lab(img_b)
+        
+        norm_lum = np.min(np.asarray([i_a[..., 0], i_b[..., 0]]), axis=0)
+        
+        res_img = i_a.copy()
+        res_img[..., 0] = norm_lum
+        
+        return skic.lab2rgb(res_img)
+
 
     def saveYeastImage(self):
-        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
-        filename = self.path.format(cnt=self.imgCounter, suf="_a")
-        # self.imgCounter += 1
-        spMisc.imsave(filename, img)
+        img_a = self.grabImage()
+        filename = self.path_raw.format(cnt=self.imgCounter, suf="_a")
+        skio.imsave(filename, img_a)
 
         self.setLight()
-        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
-        img = self.grabImage()#np.rot90(self.cam.getImage().getNumpy(), 3)
-        filename = self.path.format(cnt=self.imgCounter, suf="_b")
+        img_b = self.grabImage()
+        # grab a second time to make sure openCV flushed the camera buffer
+        img_b = self.grabImage()
+        filename = self.path_raw.format(cnt=self.imgCounter, suf="_b")
+        skio.imsave(filename, img_b)
+
+        merged_img = self.merge_images(img_a, img_b)
+        filename = self.path.format(cnt=self.imgCounter, suf="")
+        skio.imsave(filename, merged_img)
+
+        self.setLight()
         self.setImgCounter(self.imgCounter + 1)
-        spMisc.imsave(filename, img)
-
-        self.setLight()
 
     def selectFolder(self):
         folder = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
@@ -160,6 +179,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
     def setPath(self):
         self.path = os.path.join(self.folder, self.prefix)
+        self.path_raw = os.path.join(self.folder, 'raw', self.prefix)
+
         if not os.path.exists(self.path):
             self.setImgCounter(1)
         else:
@@ -168,6 +189,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.statusBar().showMessage("Set folder path to {0}. Start counter with {1}".format(self.path, self.imgCounter))
 
         self.path = os.path.join(self.path, self.prefix + "-{cnt:02d}{suf}.png")
+        self.path_raw = os.path.join(self.path_raw, self.prefix + "-{cnt:02d}{suf}.png")
         self.ui.pb_acquire.setFocus()
 
 
@@ -238,6 +260,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         elif sys.platform == 'darwin':
             for port in [x for x in os.listdir('/dev/') if 'usbmodem' in x]:
                 try:
+                    import serial
                     self.ser = serial.Serial('/dev/' + port, timeout=1)
                 except OSError:
                     continue
