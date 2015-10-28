@@ -91,6 +91,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.pb_idxInc.clicked.connect(incImgCounter)
         decImgCounter = lambda: self.setImgCounter(self.imgCounter - 1)
         self.ui.pb_idxDec.clicked.connect(decImgCounter)
+        
+        QtGui.QApplication.instance().focusChanged.connect(self.update_counter_number)
 
 
 
@@ -98,13 +100,17 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.grabImage)
         self.timer.start(33)
+        
+    def update_counter_number(self, old, new):
+        if old == self.ui.le_idx:
+            self.setImgCounter(int(self.ui.le_idx.text()))
 
     def grabImage(self):
         xSlice = slice(660, 1250)
         ySlice = slice(225, 825)
         
         ret, img_org = self.cam.read()
-        img = np.rot90(img_org[ySlice, xSlice], 3)
+        img = np.rot90(img_org[ySlice, xSlice], 2)
 
         qi = qim2np.array2qimage(img)#[ySlice, xSlice])
         pixmap = QtGui.QPixmap()
@@ -285,8 +291,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
         self.statusBar().showMessage("Set folder path to {0}. Start counter with {1}".format(self.path, self.imgCounter))
 
-        self.path = os.path.join(self.path, self.prefix + "-{cnt:02d}{suf}.png")
-        self.path_raw = os.path.join(self.path_raw, self.prefix + "-{cnt:02d}{suf}.png")
+        self.path = os.path.join(self.path, self.prefix + "-{cnt:03d}{suf}.png")
+        self.path_raw = os.path.join(self.path_raw, self.prefix + "-{cnt:03d}{suf}.png")
         self.ui.pb_acquire.setFocus()
 
 
