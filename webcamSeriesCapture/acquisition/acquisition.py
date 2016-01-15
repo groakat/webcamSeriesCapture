@@ -1,5 +1,5 @@
-import webcamSeriesCapture.gui.mainwindow_auto as MW
-import webcamSeriesCapture.gui.mainwindow_auto as MW
+# import webcamSeriesCapture.gui.mainwindow_auto as MW
+# import webcamSeriesCapture.gui.mainwindow_auto as MW
 
 import sys
 from PySide import QtGui
@@ -20,6 +20,162 @@ import skimage.feature as skif
 import skimage.draw as skid
 import skimage.filters as skifilt
 
+from PySide import QtCore, QtGui
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(679, 614)
+        self.centralwidget = QtGui.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.gv_preview = QtGui.QGraphicsView(self.centralwidget)
+        self.gv_preview.setObjectName("lbl_preview")
+        self.verticalLayout.addWidget(self.gv_preview)
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.pb_acquire = QtGui.QPushButton(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pb_acquire.sizePolicy().hasHeightForWidth())
+        self.pb_acquire.setSizePolicy(sizePolicy)
+        self.pb_acquire.setObjectName("pb_acquire")
+        self.horizontalLayout.addWidget(self.pb_acquire)
+        self.groupBox_3 = QtGui.QGroupBox(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
+        self.groupBox_3.setSizePolicy(sizePolicy)
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.formLayout = QtGui.QFormLayout(self.groupBox_3)
+        self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.ExpandingFieldsGrow)
+        self.formLayout.setLabelAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.formLayout.setObjectName("formLayout")
+        self.rb_yeast = QtGui.QRadioButton(self.groupBox_3)
+        self.rb_yeast.setObjectName("rb_yeast")
+        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.rb_yeast)
+        self.rb_allLight = QtGui.QRadioButton(self.groupBox_3)
+        self.rb_allLight.setObjectName("rb_allLight")
+        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.rb_allLight)
+        self.rb_definedMedia = QtGui.QRadioButton(self.groupBox_3)
+        self.rb_definedMedia.setChecked(True)
+        self.rb_definedMedia.setObjectName("rb_definedMedia")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.rb_definedMedia)
+        self.rb_noLight = QtGui.QRadioButton(self.groupBox_3)
+        self.rb_noLight.setObjectName("rb_noLight")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.rb_noLight)
+        self.horizontalLayout.addWidget(self.groupBox_3)
+        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout_2 = QtGui.QHBoxLayout()
+        self.horizontalLayout_2.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.groupBox_2 = QtGui.QGroupBox(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
+        self.groupBox_2.setSizePolicy(sizePolicy)
+        self.groupBox_2.setObjectName("groupBox_2")
+        self.horizontalLayout_4 = QtGui.QHBoxLayout(self.groupBox_2)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.le_prefix = QtGui.QLineEdit(self.groupBox_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.le_prefix.sizePolicy().hasHeightForWidth())
+        self.le_prefix.setSizePolicy(sizePolicy)
+        self.le_prefix.setObjectName("le_prefix")
+        self.horizontalLayout_4.addWidget(self.le_prefix)
+        self.pb_setPrefix = QtGui.QPushButton(self.groupBox_2)
+        self.pb_setPrefix.setObjectName("pb_setPrefix")
+        self.horizontalLayout_4.addWidget(self.pb_setPrefix)
+        self.horizontalLayout_2.addWidget(self.groupBox_2)
+        self.groupBox = QtGui.QGroupBox(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
+        self.groupBox.setSizePolicy(sizePolicy)
+        self.groupBox.setBaseSize(QtCore.QSize(80, 0))
+        self.groupBox.setObjectName("groupBox")
+        self.horizontalLayout_5 = QtGui.QHBoxLayout(self.groupBox)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.pb_idxDec = QtGui.QPushButton(self.groupBox)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pb_idxDec.sizePolicy().hasHeightForWidth())
+        self.pb_idxDec.setSizePolicy(sizePolicy)
+        self.pb_idxDec.setMaximumSize(QtCore.QSize(20, 16777215))
+        self.pb_idxDec.setObjectName("pb_idxDec")
+        self.horizontalLayout_5.addWidget(self.pb_idxDec)
+        self.le_idx = QtGui.QLineEdit(self.groupBox)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.le_idx.sizePolicy().hasHeightForWidth())
+        self.le_idx.setSizePolicy(sizePolicy)
+        self.le_idx.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.le_idx.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.le_idx.setObjectName("le_idx")
+        self.horizontalLayout_5.addWidget(self.le_idx)
+        self.pb_idxInc = QtGui.QPushButton(self.groupBox)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pb_idxInc.sizePolicy().hasHeightForWidth())
+        self.pb_idxInc.setSizePolicy(sizePolicy)
+        self.pb_idxInc.setMaximumSize(QtCore.QSize(20, 16777215))
+        self.pb_idxInc.setObjectName("pb_idxInc")
+        self.horizontalLayout_5.addWidget(self.pb_idxInc)
+        self.horizontalLayout_2.addWidget(self.groupBox)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.le_folder = QtGui.QLineEdit(self.centralwidget)
+        self.le_folder.setObjectName("le_folder")
+        self.horizontalLayout_3.addWidget(self.le_folder)
+        self.pb_setFolder = QtGui.QPushButton(self.centralwidget)
+        self.pb_setFolder.setObjectName("pb_setFolder")
+        self.horizontalLayout_3.addWidget(self.pb_setFolder)
+        self.pb_selectFolder = QtGui.QPushButton(self.centralwidget)
+        self.pb_selectFolder.setObjectName("pb_selectFolder")
+        self.horizontalLayout_3.addWidget(self.pb_selectFolder)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtGui.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 679, 21))
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtGui.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_acquire.setText(QtGui.QApplication.translate("MainWindow", "acquire", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_3.setTitle(QtGui.QApplication.translate("MainWindow", "light", None, QtGui.QApplication.UnicodeUTF8))
+        self.rb_yeast.setText(QtGui.QApplication.translate("MainWindow", "yeast", None, QtGui.QApplication.UnicodeUTF8))
+        self.rb_allLight.setText(QtGui.QApplication.translate("MainWindow", "all light", None, QtGui.QApplication.UnicodeUTF8))
+        self.rb_definedMedia.setText(QtGui.QApplication.translate("MainWindow", "defined media", None, QtGui.QApplication.UnicodeUTF8))
+        self.rb_noLight.setText(QtGui.QApplication.translate("MainWindow", "no light", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_2.setTitle(QtGui.QApplication.translate("MainWindow", "prefix", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_setPrefix.setText(QtGui.QApplication.translate("MainWindow", "setPrefix", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox.setTitle(QtGui.QApplication.translate("MainWindow", "number", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_idxDec.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.le_idx.setText(QtGui.QApplication.translate("MainWindow", "00", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_idxInc.setText(QtGui.QApplication.translate("MainWindow", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_setFolder.setText(QtGui.QApplication.translate("MainWindow", "set folder", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_selectFolder.setText(QtGui.QApplication.translate("MainWindow", "select folder", None, QtGui.QApplication.UnicodeUTF8))
+
 
 class EggCountAcquisition(QtGui.QMainWindow):
     quit = QtCore.Signal()
@@ -27,7 +183,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
     def __init__(self):
         """
-        
+
         args:
             path (string):
                                 root path to patches
@@ -37,9 +193,10 @@ class EggCountAcquisition(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
 
         # Set up the user interface from Designer.
-        self.ui = MW.Ui_MainWindow()
+        self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.mouseEventFilter = None
 
         self.cam = cv2.VideoCapture(0)
         self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
@@ -53,6 +210,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.prefix = "M"
         self.path = ""
         self.imgCounter = 0
+        self.circle = None
+        self.bgImg = None
 
         self.ser = None
         self.isYeast = False
@@ -66,7 +225,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
         self.selectAllLight(True)
         self.ui.rb_allLight.setChecked(True)
-       
+
 
         self.show()
         self.registerEvents()
@@ -75,6 +234,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
     def initGUI(self):
         self.ui.le_prefix.setText(self.prefix)
         self.ui.le_folder.setText(self.folder)
+        self.configureGraphicsView()
 
     def connectSignals(self):
         self.ui.pb_acquire.clicked.connect(self.saveImage)
@@ -91,34 +251,80 @@ class EggCountAcquisition(QtGui.QMainWindow):
         self.ui.pb_idxInc.clicked.connect(incImgCounter)
         decImgCounter = lambda: self.setImgCounter(self.imgCounter - 1)
         self.ui.pb_idxDec.clicked.connect(decImgCounter)
-        
+
         QtGui.QApplication.instance().focusChanged.connect(self.update_counter_number)
 
 
+    def configureGraphicsView(self):
+        self.overviewScene = QtGui.QGraphicsScene(self)
+
+        self.overviewScene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
+
+        self.mouseEventFilter = MouseFilterObj(self)
+        self.overviewScene.installEventFilter(self.mouseEventFilter)
+
+        self.ui.gv_preview.setScene(self.overviewScene)
+        self.ui.gv_preview.setMouseTracking(True)
+
+    def init_circle(self):
+        return {"r": 80, "x": 100, "y": 100}
 
     def registerEvents(self):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.grabImage)
         self.timer.start(33)
-        
+
+
     def update_counter_number(self, old, new):
         if old == self.ui.le_idx:
             self.setImgCounter(int(self.ui.le_idx.text()))
 
+
+    def draw_circle(self, img):
+        if self.circle is None:
+            return img
+
+        r = self.circle['r']
+        x = self.circle['x']
+        y = self.circle['y']
+
+        rr, cc = skid.circle(y, x, r)
+
+        ret = np.zeros_like(img)
+        ret[rr, cc] = img[rr, cc]
+
+        return ret
+
+
     def grabImage(self):
         xSlice = slice(660, 1250)
         ySlice = slice(225, 825)
-        
+
         ret, img_org = self.cam.read()
         img = np.rot90(img_org[ySlice, xSlice], 2)
 
-        qi = qim2np.array2qimage(img)#[ySlice, xSlice])
+        if self.circle:
+            try:
+                qi = qim2np.array2qimage(self.draw_circle(img))
+            except IndexError:
+                qi = qim2np.array2qimage(img)
+        else:
+            qi = qim2np.array2qimage(img)
+
+
         pixmap = QtGui.QPixmap()
         px = QtGui.QPixmap.fromImage(qi)
 
-        self.ui.lbl_preview.setPixmap(px)
-        self.ui.lbl_preview.setScaledContents(True)
-        self.ui.lbl_preview.repaint()
+        if self.bgImg:
+            self.ui.gv_preview.scene().removeItem(self.bgImg)
+
+        self.bgImg = QtGui.QGraphicsPixmapItem(px)
+        self.ui.gv_preview.scene().addItem(self.bgImg)
+        self.bgImg.setZValue(-100)
+        self.bgImg.setPos(0, 0)
+
+        self.ui.gv_preview.ensureVisible(self.bgImg)
+        self.ui.gv_preview.fitInView(self.ui.gv_preview.scene().itemsBoundingRect())
 
         return img
 
@@ -128,8 +334,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
         if not os.path.exists(os.path.split(self.path_raw)[0]):
             os.makedirs(os.path.split(self.path_raw)[0])
-                
-        if self.isYeast:            
+
+        if self.isYeast:
             self.saveYeastImage()
         else:
             self.saveDefinedMediaImage()
@@ -144,26 +350,26 @@ class EggCountAcquisition(QtGui.QMainWindow):
     def merge_images(self, img_a, img_b):
         i_a = skic.rgb2lab(img_a)
         i_b = skic.rgb2lab(img_b)
-        
+
         norm_lum = np.max(np.asarray([i_a[..., 0], i_b[..., 0]]), axis=0)
-        
+
         res_img = i_a.copy()
         res_img[..., 0] = norm_lum
-        
+
         return skic.lab2rgb(res_img)
-        
-    def average_hough_detections(self, hough_radii, hough_res, num_best=5):   
+
+    def average_hough_detections(self, hough_radii, hough_res, num_best=5):
         """
-        Smooths `num_best` hough detections with Gaussian and 
+        Smooths `num_best` hough detections with Gaussian and
         computes weighted average across the `num_best` hough
-        detections to get more precise center_x, center_y and 
+        detections to get more precise center_x, center_y and
         radius of circle
         """
-        
+
         centers = []
         accums = []
         radii = []
-        
+
         for radius, h in zip(hough_radii, hough_res):
             # For each radius, extract two circles
             h_smooth = skifilt.gaussian_filter(h, sigma=4)
@@ -171,29 +377,29 @@ class EggCountAcquisition(QtGui.QMainWindow):
             peaks = skif.peak_local_max(h, min_distance=40, num_peaks=num_peaks)
             centers.extend(peaks)
             accums.extend(h[peaks[:, 0], peaks[:, 1]])
-            radii.extend([radius] * num_peaks)        
-            
-        h_sum = np.sum([skifilt.gaussian_filter(x, sigma=2) 
+            radii.extend([radius] * num_peaks)
+
+        h_sum = np.sum([skifilt.gaussian_filter(x, sigma=2)
                         for x in hough_res[np.argsort(accums)[::-1][:num_best]]], axis=0)
-    
+
         peaks = skif.peak_local_max(h_sum, min_distance=40, num_peaks=num_peaks)
-    
+
         center_x, center_y = peaks[0]
-    
+
         max_sel = [np.max(x.ravel()) for x in hough_res[np.argsort(accums)[::-1][:num_best]]]
-        radii_sel = [radii[i] for i in np.argsort(accums)[::-1][:num_best]]    
-    
-        radius = sum([m * r for m, r in zip(max_sel, radii_sel)]) / float(sum(max_sel)) 
-        
+        radii_sel = [radii[i] for i in np.argsort(accums)[::-1][:num_best]]
+
+        radius = sum([m * r for m, r in zip(max_sel, radii_sel)]) / float(sum(max_sel))
+
         return center_x, center_y, int(radius)
 
-    def blackout_outside(self, img, sigma=3):    
+    def blackout_outside(self, img, sigma=3):
         img_g = skic.rgb2gray(img)
         edges = skif.canny(img_g, sigma=sigma)
-        
+
         hough_radii = np.arange(180, 210, 2)
         hough_res = skit.hough_circle(edges, hough_radii)
-        
+
         centers = []
         accums = []
         radii = []
@@ -211,12 +417,12 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
         if accums == [] and sigma==3:
             return self.blackout_outside(img, sigma=3)
-            
+
     #     Draw the most prominent 5 circles
         image = (img.copy() / 4.0).astype(np.uint8)
         cx, cy = skid.circle(*self.average_hough_detections(hough_radii, hough_res))
         image[cy, cx] = img[cy, cx]
-        
+
         return image
 
 
@@ -233,8 +439,8 @@ class EggCountAcquisition(QtGui.QMainWindow):
         spMisc.imsave(filename, img)
 
         filename = self.path.format(cnt=self.imgCounter, suf="")
-        img = self.blackout_outside(img)
-        spMisc.imsave(filename, img)        
+        img = self.draw_circle(img)
+        spMisc.imsave(filename, img)
 
         self.setImgCounter(self.imgCounter + 1)
 
@@ -260,8 +466,10 @@ class EggCountAcquisition(QtGui.QMainWindow):
         filename = self.path.format(cnt=self.imgCounter, suf="")
         skio.imsave(filename, merged_img)
 
-        self.ser.write("Led 1 1 1\n")
-        print self.ser.readlines()
+        if self.ser is not None:
+            self.ser.write("Led 1 1 1\n")
+            print self.ser.readlines()
+
         self.setImgCounter(self.imgCounter + 1)
 
     def selectFolder(self):
@@ -379,11 +587,14 @@ class EggCountAcquisition(QtGui.QMainWindow):
 
         if self.ser.readlines() != ['\r\n', '*EMRDY: 1\r\n']:
             # print("Connected to Arduino at port /dev/ttyACM{0}".format(i))
-            self.statusBar().showMessage("Connected to Arduino") 
+            self.statusBar().showMessage("Connected to Arduino")
             self.setLight()
             self.setLight()
 
     def setLight(self):
+        if self.ser is None:
+            return
+
         if not self.isYeast:
             self.ser.write("Led {0}\n".format(self.ledCode))
             print self.ser.readlines()
@@ -402,16 +613,54 @@ class EggCountAcquisition(QtGui.QMainWindow):
     def cleanUp(self):
         self.timer.stop()
         try:
-            self.ser.write("Led 0 0 0\n")
-            self.ser.close()
+            if self.ser is not None:
+                self.ser.write("Led 0 0 0\n")
+                self.ser.close()
         except:
             print("Port already closed")
-            
+
         try:
             del self.cam
         except AttributeError:
             print("Cam already closed")
 
+
+    def clickInScene(self, x, y):
+        self.moveInScene(x, y)
+        self.saveImage()
+
+
+    def moveInScene(self, x, y):
+        if self.circle is None:
+            self.circle = self.init_circle()
+
+        self.circle["x"] = x
+        self.circle["y"] = y
+
+    def wheelInScene(self, delta):
+        if self.circle is None:
+            self.circle = self.init_circle()
+
+        self.circle['r'] += delta / 10.0
+
+class MouseFilterObj(QtCore.QObject):#And this one
+    def __init__(self, parent):
+        QtCore.QObject.__init__(self)
+        self.parent = parent
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
+            self.parent.clickInScene(int(event.scenePos().x()),
+                                      int( event.scenePos().y()))
+
+        if event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
+            self.parent.moveInScene(int(event.scenePos().x()),
+                                            int( event.scenePos().y()))
+
+        if event.type() == QtCore.QEvent.Type.GraphicsSceneWheel:
+            self.parent.wheelInScene(event.delta())
+
+        return False
 
 
 
