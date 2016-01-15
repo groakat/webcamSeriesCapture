@@ -439,7 +439,11 @@ class EggCountAcquisition(QtGui.QMainWindow):
         spMisc.imsave(filename, img)
 
         filename = self.path.format(cnt=self.imgCounter, suf="")
-        img = self.draw_circle(img)
+        try:
+            img = self.draw_circle(img)
+        except IndexError:
+            pass
+        
         spMisc.imsave(filename, img)
 
         self.setImgCounter(self.imgCounter + 1)
