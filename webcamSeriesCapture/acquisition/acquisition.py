@@ -443,7 +443,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
             img = self.draw_circle(img)
         except IndexError:
             pass
-        
+
         spMisc.imsave(filename, img)
 
         self.setImgCounter(self.imgCounter + 1)
@@ -645,7 +645,7 @@ class EggCountAcquisition(QtGui.QMainWindow):
         if self.circle is None:
             self.circle = self.init_circle()
 
-        self.circle['r'] += delta / 10.0
+        self.circle['r'] += np.sign(delta)
 
 class MouseFilterObj(QtCore.QObject):#And this one
     def __init__(self, parent):
