@@ -46,6 +46,16 @@ Download the windows installer from http://www.arduino.org/downloads and install
 - new -> shortcut
 - set as location: `python.exe C:\Users\XXXXX\Anaconda2\Lib\site-packages\webcamSeriesCapture\acquisition\acquisition.py` (replace `XXXXX` with the name of the `C:\Users\` folder of the active user)
 
+## Camera Configuration
+### Logitech webcam driver
+Download logitech driver from http://support.logitech.com/en_us/product/hd-pro-webcam-c920#download
 
 ## Example Camera configuration
+
+- In the system tray (bottom right next to the clock) click on the small webcam icon (right click) -> Logitech Webcam Controller.
+- Click `Webcam options` (make sure it is expanded)
+- Click `Advanced Settings` at the bottom
+- Make sure that all checkboxes are unticked (RightLight, Auto) to be able to move all sliders
+- Change settings so that the live image looks like the reference image
+
 ![exmaple camera](https://github.com/groakat/webcamSeriesCapture/raw/master/camera_reference.png)
