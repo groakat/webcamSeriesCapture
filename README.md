@@ -28,7 +28,11 @@ http://eggcounter.polygonaltree.co.uk/
 
 ### Install further dependencies
 - open `anaconda prompt` 
-- type: `pip   install simplecv`, `conda install pyside` (confirm by pressing y) and ` pip install https://github.com/hmeine/qimage2ndarray/archive/master.zip`, `conda install -c menpo opencv3`, `conda install pyserial`
+- type: `pip   install simplecv`, 
+- `conda install pyside` (confirm by pressing y) and 
+- ` pip install https://github.com/hmeine/qimage2ndarray/archive/master.zip`, 
+- `conda install -c menpo opencv3`, 
+- `conda install pyserial`
 
 ### Install Arduino software/driver
 Download the windows installer from http://www.arduino.org/downloads and install it keeping all the standard settings. (a couple of drivers will be installed as well, including the Atmel drivers)
