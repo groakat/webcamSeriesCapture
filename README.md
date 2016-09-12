@@ -37,3 +37,7 @@ Download the windows installer from http://www.arduino.org/downloads and install
 ### Install `webcamSeriesCapture`
 - type `pip install https://github.com/groakat/webcamSeriesCapture/archive/master.zip`
 
+### Setup Shortcut
+- right-click on Desktop
+- new -> shortcut
+- set as location: `python.exe C:\Users\XXXXX\Anaconda2\Lib\site-packages\webcamSeriesCapture\acquisition\acquisition.py` (replace `XXXXX` with the name of the `C:\Users\` folder of the active user)
