@@ -57,5 +57,6 @@ Download logitech driver from http://support.logitech.com/en_us/product/hd-pro-w
 - Click `Advanced Settings` at the bottom
 - Make sure that all checkboxes are unticked (RightLight, Auto) to be able to move all sliders
 - Change settings so that the live image looks like the reference image
+- also: **make sure to switch auto-focus off!** (in the small window)
 
 ![exmaple camera](https://github.com/groakat/webcamSeriesCapture/raw/master/camera_reference.png)
